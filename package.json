@@ -27,7 +27,6 @@
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
-    "nest-winston": "^1.10.2",
     "oauth": "^0.10.2",
     "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
