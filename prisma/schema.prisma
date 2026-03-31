@@ -5,7 +5,10 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma" 
+
+ previewFeatures = ["relationJoins"]
+  moduleFormat = "cjs"
 }
 
 datasource db {
@@ -15,7 +18,7 @@ datasource db {
 model User { 
   id    String     @id @default(uuid()) 
   notionAccessToken String
-  notionWorkspaceId String
+  notionWorkspaceId String @unique
   notionRefreshToken String
   tokenExpiresAt DateTime
   createdAt DateTime @default(now())
