@@ -16,7 +16,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('start')
-  startAuth(@Req() req: Request) {
+  startAuth(@Req() req: Request, @Res() res: Response) {
     winstonLogger.info('Starting Notion OAuth flow');
     const { state, codeVerifier, codeChallenge } =
       this.authService.generatePKCE();
@@ -26,7 +26,7 @@ export class AuthController {
     const url = this.authService.buildAuthorizationUrl(state, codeChallenge);
 
     winstonLogger.info(`Redirecting user to Notion auth URL: ${url}`);
-    return { url };
+    return res.redirect(url);
   }
 
   @Get('callback')
