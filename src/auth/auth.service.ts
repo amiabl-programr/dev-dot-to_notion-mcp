@@ -86,17 +86,6 @@ export class AuthService {
     const credentials = Buffer.from(
       `${process.env.NOTION_CLIENT_ID!}:${process.env.NOTION_CLIENT_SECRET!}`,
     ).toString('base64');
-    // const tokenApiResponse = await axios.post(
-    //   'https://api.notion.com/v1/oauth/token',
-    //   {
-    //     grant_type: 'authorization_code',
-    //     code,
-    //     redirect_uri: process.env.NOTION_REDIRECT_URI!,
-    //     client_id: process.env.NOTION_CLIENT_ID!,
-    //     code_verifier: codeVerifier,
-    //   },
-    //   { headers: { 'Content-Type': 'application/json' } },
-    // );
 
     const tokenApiResponse = await axios.post(
       'https://api.notion.com/v1/oauth/token',
