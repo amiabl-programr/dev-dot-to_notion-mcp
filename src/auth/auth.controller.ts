@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Req,
   Query,
   Res,
   UnauthorizedException,
@@ -16,39 +15,37 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('start')
-  startAuth(@Req() req: Request, @Res() res: Response) {
-    winstonLogger.info('Starting Notion OAuth flow');
+  async startAuth(@Res() res: Response) {
     const { state, codeVerifier, codeChallenge } =
       this.authService.generatePKCE();
 
-    req.session.notionOAuth = { state, codeVerifier };
+    await this.authService.saveOAuthState(state, codeVerifier);
 
-    const url = this.authService.buildAuthorizationUrl(state, codeChallenge);
-
-    winstonLogger.info(`Redirecting user to Notion auth URL: ${url}`);
+    const url = this.authService.buildAuthorizationUrl(codeChallenge, state);
+    winstonLogger.info('Redirecting user to Notion for authentication', {
+      url,
+    });
     return res.redirect(url);
   }
 
   @Get('callback')
-  async callback(
-    @Req() req: Request,
-    @Query() query: NotionCallbackDto,
-    @Res() res: Response,
-  ) {
-    const sessionData = req.session.notionOAuth;
+  async callback(@Query() query: NotionCallbackDto, @Res() res: Response) {
+    const stored = await this.authService.getOAuthState(query.state);
+    winstonLogger.info('Received OAuth callback from Notion', {
+      state: query.state,
+    });
 
-    if (!sessionData || sessionData.state !== query.state) {
-      throw new UnauthorizedException('Invalid state');
+    if (!stored) {
+      throw new UnauthorizedException('Invalid or expired state');
     }
 
     const user = await this.authService.exchangeCodeForTokens(
       query.code,
-      sessionData.codeVerifier,
+      stored.codeVerifier,
     );
 
-    delete req.session.notionOAuth;
+    await this.authService.deleteOAuthState(query.state);
 
-    return res.redirect(`
-      ${process.env.FRONTEND_URL}/dashboard?userId=${user.id}`);
+    return res.redirect(`${process.env.FRONTEND_URL}/dashboard?userId=${user.id}`);
   }
 }
