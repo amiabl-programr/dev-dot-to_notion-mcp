@@ -1,46 +1,48 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma" 
-
- previewFeatures = ["relationJoins"]
-  moduleFormat = "cjs"
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
+  previewFeatures = ["relationJoins"]
+  moduleFormat    = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User { 
-  id    String     @id @default(uuid()) 
-  notionAccessToken String
-  notionWorkspaceId String @unique
+model User {
+  id                 String   @id @default(uuid())
+  notionAccessToken  String
+  notionWorkspaceId  String   @unique
   notionRefreshToken String
-  tokenExpiresAt DateTime
-  createdAt DateTime @default(now())
-  tasks Task[]
-} 
+  tokenExpiresAt     DateTime
+  createdAt          DateTime @default(now())
+  tasks              Task[]
+}
 
-model Task { 
-  id        Int     @id @default(autoincrement()) 
-  output Json
+model Task {
+  id           Int        @id @default(autoincrement())
+  output       Json
   notionPageId String?
-  topic String
-  status TaskStatus
-  userId String
+  topic        String
+  status       TaskStatus
+  userId       String
   errorMessage String
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  user User @relation(fields: [userId], references: [id])
-} 
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime
+  user         User       @relation(fields: [userId], references: [id])
+}
+
+model OAuthState {
+  id           String   @id @default(cuid())
+  state        String   @unique
+  codeVerifier String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
 
 enum TaskStatus {
-    PENDING
-    PROCESSING
-    COMPLETED
-    FAILED
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
